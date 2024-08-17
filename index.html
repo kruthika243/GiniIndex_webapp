@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gini Index Prediction</title>
+    <script>
+        async function submitForm(event) {
+            event.preventDefault();  // Prevent the form from submitting the traditional way
+
+            // Collect form data
+            const formData = new FormData(document.querySelector('form'));
+
+            // Convert FormData to URLSearchParams
+            const data = new URLSearchParams(formData).toString();
+
+            // Send POST request to Flask
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: data
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // Display prediction result
+                const resultDiv = document.getElementById('result');
+                if (result.gini_index !== undefined) {
+                    resultDiv.innerHTML = `<h2>Predicted Gini Index: ${result.gini_index}</h2>`;
+                } else {
+                    resultDiv.innerHTML = `<h2>Error: ${result.error}</h2>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Predict the Gini Index</h1>
+    <form onsubmit="submitForm(event)">
+        <label for="population">Population:</label>
+        <input type="text" id="population" name="population" required><br><br>
+
+        <label for="gdp">GDP:</label>
+        <input type="text" id="gdp" name="gdp" required><br><br>
+
+        <label for="gdp_per_capita">GDP per Capita:</label>
+        <input type="text" id="gdp_per_capita" name="gdp_per_capita" required><br><br>
+
+        <label for="area">Area:</label>
+        <input type="text" id="area" name="area" required><br><br>
+
+        <label for="country">Country:</label>
+        <input type="text" id="country" name="country" required><br><br>
+
+        <label for="income_group">Income Group:</label>
+        <input type="text" id="income_group" name="income_group" required><br><br>
+
+        <!-- Percentile fields -->
+        <label for="p1">Percentile 1:</label>
+        <input type="text" id="p1" name="p1" required><br><br>
+
+        <label for="p5">Percentile 5:</label>
+        <input type="text" id="p5" name="p5" required><br><br>
+
+        <label for="p9">Percentile 9:</label>
+        <input type="text" id="p9" name="p9" required><br><br>
+
+        <!-- Add fields for all percentiles needed up to p100 -->
+
+        <input type="submit" value="Predict">
+    </form>
+    <div id="result">
+        <!-- Prediction result will be displayed here -->
+    </div>
+</body>
+</html>
